@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "serve": "serve public",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.1",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "serve": "^14.2.5",
+    "ws": "^8.18.3"
+  }
+}

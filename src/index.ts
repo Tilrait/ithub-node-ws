@@ -30,7 +30,18 @@ wsServer.on("connection", (connection, request) => {
     connection.send(JSON.stringify(messages))
 
     connection.on("message", message => {
-        console.log(message)
+        const data = JSON.parse(message.toString())
+
+        const newMessage = {
+            authorId: "id-2",
+            content: data,
+            createdAt: Date.now()
+        }
+
+        messages.push(newMessage)
+        for (const client of connections) {
+            client.send(JSON.stringify(newMessage))
+        }
     })
 
     connection.on("close", () => {

@@ -16,7 +16,6 @@ function renderMessage(message) {
     mainElement.prepend(messageElement)
 }
 
-
 function sendMessage(event) {
     event.preventDefault()
     const formElement = event.target
@@ -37,12 +36,19 @@ connection.addEventListener('open', () => {
 
 connection.addEventListener('message', (event) => {
     const data = JSON.parse(event.data)
+    const { type, payload } = data
 
-    const messages = Array.isArray(data) ? data : [data]
+    if (type === "messages") {
+        const messages = Array.isArray(payload) ? payload : [payload]
 
-    for (const message of messages) {
-        renderMessage(message)
+        for (const message of messages) {
+            renderMessage(message)
+        }
+    } else if (type === "users") {
+        renderUsers(payload)
     }
+
+
 })
 
 connection.addEventListener('error', (error) => {

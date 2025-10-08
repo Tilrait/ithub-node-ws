@@ -1,0 +1,27 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    min-height: 100vh;
+    max-height: 100vh;
+}
+
+.users {
+    flex: 0 1 400px;
+    padding: 2vmin;
+}
+
+.messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2vmin;
+}
+
+.messages__form {
+    margin-top: auto;
+}

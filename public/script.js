@@ -16,6 +16,18 @@ function renderMessage(message) {
     mainElement.prepend(messageElement)
 }
 
+function renderUsers(users) {
+    const usersElement = document.querySelector('.users')
+
+    for (const user of users) {
+        const userElement = document.createElement("button")
+        userElement.className = "user list_row"
+        userElement.innerText = user
+
+        usersElement.append(userElement)
+    }
+}
+
 function sendMessage(event) {
     event.preventDefault()
     const formElement = event.target

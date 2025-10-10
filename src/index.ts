@@ -1,88 +1,20 @@
-import { randomUUID, type UUID } from 'node:crypto'
-import { WebSocketServer, type WebSocket } from 'ws'
+import { WebSocketServer } from 'ws'
 
-type Event = "messages" | "message" | "users" | "user:join"
+import handleConnect from './handlers/handleConnect'
+import handleEvents from './handlers/handleEvents'
+import handleDisconnect from './handlers/handleDisconnect'
 
-type PayloadMessage = {
-    authorId: string,
-    content: string,
-    createdAt: number,
-}
+import { connections, messages } from './storage'
 
-type PayloadUser = UUID
-
-type Message = {
-    type: Event,
-    payload: PayloadMessage[] | PayloadUser[] | PayloadMessage | PayloadUser
-}
 
 const wsServer = new WebSocketServer({ port: 9009 })
 
-const connections = new Map<UUID, WebSocket>()
+wsServer.on("connection", (connection) => {
+    const newUserId = handleConnect({ connection, connections })
 
-const messages: PayloadMessage[] = [
-    {
-        authorId: "id-1",
-        content: "Hi there!",
-        createdAt: Date.now()
-    },
-    {
-        authorId: "id-1",
-        content: 'Anybody here?',
-        createdAt: Date.now()
-    }
-]
-
-wsServer.on("connection", (connection, request) => {
-    const newUserId = randomUUID()
-    // TODO: генерация ID в стиле нелепая-обезьяна, deprecated-being
-
-    connections.set(newUserId, connection)
-
-    const userJoinObject: Message = {
-        type: "user:join",
-        payload: newUserId
-    }
-
-    for (const userConnection of connections.values()) {
-        userConnection.send(JSON.stringify(userJoinObject))
-    }
-
-    const messagesObject: Message = {
-        type: "messages",
-        payload: messages
-    }
-
-    const usersObject: Message = {
-        type: "users",
-        payload: [...connections.keys()]
-    }
-
-    connection.send(JSON.stringify(messagesObject))
-    connection.send(JSON.stringify(usersObject))
-
-    connection.on("message", message => {
-        const data = JSON.parse(message.toString())
-
-        const newMessagePayload: PayloadMessage = {
-            authorId: "id-2",
-            content: data,
-            createdAt: Date.now()
-        }
-
-        const newMessage: Message = {
-            type: 'message',
-            payload: newMessagePayload
-        }
-
-        messages.push(newMessagePayload)
-
-        for (const client of connections.values()) {
-            client.send(JSON.stringify(newMessage))
-        }
+    connection.on("message", (message) => {
+        handleEvents({ message, messages, connections })
     })
 
-    connection.on("close", () => {
-        connections.delete(newUserId)
-    })
+    connection.on("close", () => handleDisconnect({ connections, newUserId }))
 })

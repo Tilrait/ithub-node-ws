@@ -13,7 +13,7 @@ wsServer.on("connection", (connection) => {
     const newUserId = handleConnect({ connection, connections })
 
     connection.on("message", (message) => {
-        handleEvents({ message, messages, connections })
+        handleEvents({ message, messages, connections, newUserId });
     })
 
     connection.on("close", () => handleDisconnect({ connections, newUserId }))

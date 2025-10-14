@@ -4,13 +4,18 @@
  */
 function renderMessage(message) {
     const messageElement = document.createElement('section')
-    messageElement.className = "chat chat-start"
+    const isOwnMessage = message.authorId === currentUserName
+    messageElement.className = isOwnMessage ? "chat chat-end" : "chat chat-start"
+    const bubbleClass = isOwnMessage ? "chat-bubble chat-bubble-primary" : "chat-bubble"
 
     messageElement.innerHTML = `
-        <p class="chat-bubble">
+    <div class="chat-header">
+        ${message.authorId}
+    </div>
+        <p class="${bubbleClass}">
             ${message.content}
         </p>
-    `
+    `;
 
     const mainElement = document.querySelector('.messages')
     mainElement.prepend(messageElement)
@@ -37,7 +42,7 @@ function sendMessage(event) {
 
 const formElement = document.querySelector('.messages__form')
 formElement.addEventListener("submit", sendMessage)
-
+let currentUserName = null
 const wsUrl = 'ws://localhost:9009'
 
 const connection = new WebSocket(wsUrl)
@@ -56,7 +61,12 @@ connection.addEventListener('message', (event) => {
         for (const message of messages) {
             renderMessage(message)
         }
+    } else if (type === "message") {
+        renderMessage(payload)
     } else if (type === "users") {
+        if (!currentUserName) {
+            currentUserName = payload[payload.length-1]
+        }
         renderUsers(payload)
     }
 

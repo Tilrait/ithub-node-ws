@@ -38,6 +38,7 @@ function sendMessage(event) {
     const formElement = event.target
     const newMessage = formElement.elements.newMessage.value
     connection.send(JSON.stringify(newMessage))
+    formElement.reset();
 }
 
 const formElement = document.querySelector('.messages__form')

@@ -9,8 +9,20 @@ import { connections, messages } from './storage'
 
 const wsServer = new WebSocketServer({ port: 9009 })
 
+const tempUserId = `user-${Date.now()}`;
+
 wsServer.on("connection", (connection) => {
-    const newUserId = handleConnect({ connection, connections })
+    const newUserId = handleConnect({
+      connection,
+      connections,
+      userJoinedMessage: {
+        authorId: "system",
+        content: `Пользователь ${tempUserId} вошел в чат`,
+        createdAt: Date.now(),
+      },
+    });
+
+
 
     connection.on("message", (message) => {
         handleEvents({ message, messages, connections, newUserId });

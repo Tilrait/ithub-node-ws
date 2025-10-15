@@ -13,18 +13,20 @@ export type PayloadUser = string
 export type Message = {
     type: Event,
     payload: PayloadMessage[] | PayloadUser[] | PayloadMessage | PayloadUser
+    userJoinedMessage?: PayloadMessage
 }
 
 export type Connections = Map<string, WebSocket>
 
 export type ConnectOptions = {
-    connections: Connections,
-    connection: WebSocket
-}
+  connections: Connections;
+  connection: WebSocket;
+  userJoinedMessage: PayloadMessage;
+};
 
 export type DisconnectOptions = {
     connections: Connections,
-    newUserId: string
+    newUserId: string,
 }
 
 export type EventHandlerOptions = {

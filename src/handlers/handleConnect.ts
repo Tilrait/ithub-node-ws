@@ -1,38 +1,49 @@
-
 import { messages, usedNames } from "../storage";
-import type { Message, ConnectOptions } from '../types'
-import { generateMonkeyID } from '../utils/generateId'
+import type { Message, ConnectOptions } from "../types";
+import { generateMonkeyID } from "../utils/generateId";
 
+export default function handleConnect({
+  connections,
+  connection,
+  userJoinedMessage,
+}: ConnectOptions) {
+  const newUserId = generateMonkeyID(usedNames);
+  usedNames.add(newUserId);
+  // TODO: генерация ID в стиле нелепая-обезьяна, deprecated-being
 
-export default function handleConnect({ connections, connection }: ConnectOptions) {
-    const newUserId = generateMonkeyID(usedNames);
-    usedNames.add(newUserId)
-    // TODO: генерация ID в стиле нелепая-обезьяна, deprecated-being
-    
+  connections.set(newUserId, connection);
 
-    connections.set(newUserId, connection)
+  const userJoinObject: Message = {
+    type: "user:join",
+    payload: newUserId,
+  };
 
-    const userJoinObject: Message = {
-        type: "user:join",
-        payload: newUserId
-    }
+  const systemMessageObject: Message = {
+    type: "message",
+    payload: {
+      authorId: "system",
+      content: `Пользователь ${newUserId} вошел в чат`,
+      createdAt: Date.now(),
+    },
+  };
 
-    const messagesObject: Message = {
-        type: "messages",
-        payload: messages.slice(-20) // Это срез массива messages который возвращает последние 20 элементов массива.
-    }
+  const messagesObject: Message = {
+    type: "messages",
+    payload: messages.slice(-20), // Это срез массива messages который возвращает последние 20 элементов массива.
+  };
 
-    const usersObject: Message = {
-        type: "users",
-        payload: [...connections.keys()]
-    }
+  const usersObject: Message = {
+    type: "users",
+    payload: [...connections.keys()],
+  };
 
-    connection.send(JSON.stringify(messagesObject))
-    connection.send(JSON.stringify(usersObject))
+  connection.send(JSON.stringify(messagesObject));
+  connection.send(JSON.stringify(usersObject));
 
-    for (const userConnection of connections.values()) {
-      userConnection.send(JSON.stringify(userJoinObject));
-    }
+  for (const userConnection of connections.values()) {
+    userConnection.send(JSON.stringify(userJoinObject));
+    userConnection.send(JSON.stringify(systemMessageObject));
+  }
 
-    return newUserId
+  return newUserId;
 }

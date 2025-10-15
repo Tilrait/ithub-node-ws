@@ -5,7 +5,6 @@ import { generateMonkeyID } from "../utils/generateId";
 export default function handleConnect({
   connections,
   connection,
-  userJoinedMessage,
 }: ConnectOptions) {
   const newUserId = generateMonkeyID(usedNames);
   usedNames.add(newUserId);
